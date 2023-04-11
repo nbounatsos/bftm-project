@@ -36,7 +36,13 @@ Combo$Row.names<-NULL
 ```
 
 ```{r}
-rocVarImp<-filterVarImp(Combo[,-1], as.factor(Combo[,1]), nonpara = FALSE)
+sample <- sample(c(TRUE, FALSE), nrow(Combo), replace=TRUE, prob=c(0.8,0.2))
+train  <- Combo[sample,]
+test   <- Combo[!sample,]
+```
+
+```{r}
+rocVarImp<-filterVarImp(train[,-1], as.factor(train[,1]), nonpara = FALSE)
 ```
 
 ```{r}
@@ -56,7 +62,7 @@ features<-as.data.frame(features)
 ```
 
 ```{r}
-barplot(features$features[1:20],names.arg=row.names(features)[1:20], cex.axis = 1, cex.names = 0.4, xlab = "Feature name", ylab = "Feature importance", main = "Top 20 important features")
+barplot(features$features[1:30],names.arg=row.names(features)[1:30], cex.axis = 1, cex.names = 0.25, xlab = "Feature name", ylab = "Feature importance", main = "Top 30 important features")
 ```
 
 ```{r}

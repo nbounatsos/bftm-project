@@ -1,0 +1,60 @@
+---
+title: "PCA_feature_selection"
+author: "nb"
+date: "2023-04-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PCA
+
+```{r}
+setwd('C:/Users/nikos/OneDrive/Έγγραφα/MSc/Classes/Bioinformatics for Translational Medicine/bstm-project')
+```
+
+```{r}
+data<-t(read.delim('train_call.tsv', header = TRUE, sep = "\t", quote = "\"", dec = ".",
+fill = TRUE, comment.char = ""))
+```
+
+```{r}
+clinic<-read.delim('train_clinical.txt', header = TRUE, sep = "\t", quote = "\"", dec = ".", fill = TRUE, comment.char = "",row.names='Sample')
+```
+
+```{r}
+Combo<-merge(clinic, data, by="row.names")
+row.names(Combo)<-Combo$Row.names
+Combo$Row.names<-NULL
+```
+
+```{r}
+sample <- sample(c(TRUE, FALSE), nrow(Combo), replace=TRUE, prob=c(0.8,0.2))
+train  <- Combo[sample,]
+test   <- Combo[!sample,]
+```
+
+```{r}
+numeric_df<-train[,-1]
+```
+
+```{r PCA raw data }
+m= colMeans(numeric_df) 			      # calculates column means
+Xm=sweep(numeric_df,2,m,FUN="-")    # subtract the column means
+ssqtotal <- sum(Xm*Xm)			        # calculates the sum of squares
+USV <- svd(Xm)					            # see the help for this function
+T <- USV$u %*% diag(USV$d)          # Calculate scores
+P <- USV$v                          # Loadings
+npc <- 30                           # Calculate 30 PCs
+ssq <- 0 * (1:npc)                  # Initialize variable ssq
+for (i in 1:npc){                   # for loop to calculate sum of squares for each component
+  Xest  <- T[,i] %*% t(P[,i])
+  ssq[i] <- 100*sum(Xest*Xest)/ssqtotal
+}
+ssqcum = cumsum(ssq)                # calculate cumulative ssq
+data.frame(ssq=ssq,ssqtot=ssqcum)
+```
+
+\
