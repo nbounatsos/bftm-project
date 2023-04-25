@@ -1,78 +1,31 @@
----
-title: "Feature Selection for CATS"
-output:
-  html_document:
-    df_print: paged
-    team: 8
-    authors: Nick Bounatsos
----
-
-```{r}
 setwd('C:/Users/nikos/OneDrive/Έγγραφα/MSc/Classes/Bioinformatics for Translational Medicine/bstm-project')
-```
 
-```{r}
 library('caret')
 library('gbm')
-```
 
-```{r}
-data<-read.delim('train_call.tsv', header = TRUE, sep = "\t", quote = "\"", dec = ".",
-fill = TRUE, comment.char = "")
-```
+data<-read.delim('train_call.tsv', header = TRUE, sep = "\t", quote = "\"", dec = ".", fill = TRUE, comment.char = "")
 
-```{r}
 data<-t(data)
-```
 
-```{r}
 clinic<-read.delim('train_clinical.txt', header = TRUE, sep = "\t", quote = "\"", dec = ".", fill = TRUE, comment.char = "",row.names='Sample')
-```
 
-```{r}
 Combo<-merge(clinic, data, by="row.names")
 row.names(Combo)<-Combo$Row.names
 Combo$Row.names<-NULL
-```
 
-```{r}
 sample <- sample(c(TRUE, FALSE), nrow(Combo), replace=TRUE, prob=c(0.8,0.2))
 train  <- Combo[sample,]
 test   <- Combo[!sample,]
-```
 
-```{r}
 rocVarImp<-filterVarImp(train[,-1], as.factor(train[,1]), nonpara = FALSE)
-```
 
-```{r}
-head(rocVarImp)
-```
-
-```{r}
 final<-apply(rocVarImp, 1, mean)
-```
 
-```{r}
 features<-final[order(final,decreasing = TRUE)]
-```
 
-```{r}
 features<-as.data.frame(features)
-```
 
-```{r}
-barplot(features$features[1:30],names.arg=row.names(features)[1:30], cex.axis = 1, cex.names = 0.25, xlab = "Feature name", ylab = "Feature importance", main = "Top 30 important features")
-```
-
-```{r}
 index_names <- row.names(features)[1:30]
-```
 
-```{r}
-Combo[ , c(index_names)]
-```
-
-```{r}
 write.csv(Combo[ , c(index_names)], "n30_combo.csv", row.names=TRUE)
-```
+
